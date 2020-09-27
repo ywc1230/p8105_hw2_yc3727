@@ -15,7 +15,7 @@ library(readxl)
 
 ## Problem 1 
 
-Read the Mr.Trashwheel dataset. 
+#### Read the Mr.Trashwheel dataset. 
 
 ```{r}
 
@@ -32,7 +32,7 @@ trashwheel_df =
   )
 ```
 
-Read precipitation data! 
+#### Read precipitation data! 
 
 ```{r}
   precip_2018 = 
@@ -59,7 +59,7 @@ precip_2017 =
 
 ```
 
-Now combine annual precipitation.
+#### Now combine annual precipitation.
 
 ```{r}
   month_df = 
@@ -79,6 +79,8 @@ This dataset contains information from the Mr. Trashwheel trash collector in Bal
 
 ## Problem 2 
 
+#### Read in csv file, clean variable names, convert entry variable 
+
 ```{r}
    transit_df = read_csv(
      "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
@@ -87,17 +89,24 @@ This dataset contains information from the Mr. Trashwheel trash collector in Bal
     mutate(entry = ifelse(entry == "YES", "True", "False"))
 ```
 
+#### Description of the NYC Transit dataset 
+
+The dataset contains information related to each entrance and exit for each subway station in New York City. It contains the following variables: `r ls(transit_df)`. The dataset has `r nrow(transit_df)` rows and `r ncol(transit_df)` columns. 
+
+In terms of the data cleaning steps, I first read the csv file into R, used the clean_names() function to clean the variable names. Then I used the select function to retain only the desired variables. 
+
+This dataset is not yet tidy because there are redundant columns that seem to describe the same thing. 
+
+
 
 
 ## Problem 3 
 
 ```{r}
-
   pols_df = read_csv(
     "./data/pols-month.csv") %>%
     janitor::clean_names() %>%
-    separate(mon, sep = "-", into = c("year", "month", "day")) %>%
-  
+    separate(mon, sep = "-", into = c("year", "month", "day"))
 
 ```
 
