@@ -116,6 +116,20 @@ There are a total of 465 unique stations.
 
 There a total of 84 stations that are ADA compliant. 
 
+#### What proportion of station entrances / exits without vending allow entrance?
+
+```{r}
+  group_by(transit_df, vending)%>%
+  summarise(vending = n())
+  
+  group_by(transit_df, vending, entry)%>%
+  summarise(vending = n())
+  
+  69/183
+```
+
+There are a total of 183 station entrances/exits without vending. Of those, 69 entrances/exits allow entry. So `r 69/183*100`% of the station entrances/exits without vending allow entrance. 
+
 ## Problem 3 
 
 ```{r}
