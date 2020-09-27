@@ -93,12 +93,28 @@ This dataset contains information from the Mr. Trashwheel trash collector in Bal
 
 The dataset contains information related to each entrance and exit for each subway station in New York City. It contains the following variables: `r ls(transit_df)`. The dataset has `r nrow(transit_df)` rows and `r ncol(transit_df)` columns. 
 
-In terms of the data cleaning steps, I first read the csv file into R, used the clean_names() function to clean the variable names. Then I used the select function to retain only the desired variables. 
+In terms of the data cleaning steps, I first read the csv file into R, used the clean_names() function to clean the variable names. Then I used the select function to retain only the desired variables. I've also converted the entry variable from a character variable to a logical variable.
 
 This dataset is not yet tidy because there are redundant columns that seem to describe the same thing. 
 
+#### Counting the number of distinct stations 
 
+```{r}
+  distinct(transit_df, line, station_name, .keep_all = TRUE) %>%
+  nrow()
+```
 
+There are a total of 465 unique stations. 
+
+#### How many stations are ADA compliant?
+
+```{r}
+  distinct(transit_df, line, station_name, .keep_all = TRUE) %>% 
+  filter(ada == TRUE) %>%
+  nrow() 
+```
+
+There a total of 84 stations that are ADA compliant. 
 
 ## Problem 3 
 
