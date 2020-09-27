@@ -40,9 +40,9 @@ trashwheel_df =
      "./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", 
      sheet = "2018 Precipitation", 
      skip = 1
-   )%>% 
+   ) %>% 
   janitor::clean_names() %>%
-  drop_na (month) %>%
+  drop_na(month) %>%
   mutate(year = 2018) %>%
   relocate(year)
 
@@ -139,7 +139,7 @@ There are a total of 183 station entrances/exits without vending. Of those, 69 e
 
 ## Problem 3 
 
-#### Reading in & cleaning data; breaking up mon variable; replacing month number with month name; deleting day variable; 
+#### Reading in & cleaning data; breaking up mon variable; replacing month number with month name; creating a president variable; deleting prez_dem, prez_gop, & day variable; 
 
 ```{r}
 pols_df = read_csv(
@@ -157,9 +157,14 @@ month_df =
 
 pols_df =
     left_join(pols_df, month_df, by = "month") %>%
-    relocate(month_name, .after = "month") 
+    relocate(month_name, .after = "month") %>%
+    mutate(
+      president = ifelse(prez_gop == "1", "gop", "dem")) %>%
+    relocate(president, .after = "month_name")
 
-pols_df = subset(pols_df, select = -day)
+pols_df = select(pols_df, -day, -prez_dem, -prez_gop)
+
+pols_df
 
 ```
 
