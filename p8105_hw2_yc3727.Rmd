@@ -75,4 +75,27 @@ Now combine annual precipitation.
 
 ```
 
-This dataset contains information from the Mr. Trashwheel trash collector in Baltimore, Maryland. As trash enters the inner harbor, the trashwheel collects that trash and stores it in a dumpster. The dataset contains information on year, month, and trash collected, including some specific kinds of trash. There are a total of `r nrow(trashwheel_df)` rows in our final dataset. Additional data sheets include monthly precipitation data. 
+This dataset contains information from the Mr. Trashwheel trash collector in Baltimore, Maryland. As trash enters the inner harbor, the trashwheel collects that trash and stores it in a dumpster. The dataset contains information on year, month, and trash collected, including some specific kinds of trash. There are a total of `r nrow(trashwheel_df)` rows in our final dataset. Additional data sheets include monthly precipitation data.
+
+## Problem 2 
+
+```{r}
+   transit_df = read_csv(
+     "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
+    janitor::clean_names() %>%
+    select(line:entry, vending, ada)
+```
+
+
+## Problem 3 
+
+```{r}
+
+  pols_df = read_csv(
+    "./data/pols-month.csv") %>%
+    janitor::clean_names() %>%
+    separate(mon, sep = "-", into = c("year", "month", "day")) %>%
+  
+
+```
+
