@@ -213,3 +213,15 @@ snp_df
   
 ```
 
+#### Join the datasets by merging snp into pols, then merging unemployment into the result.
+
+```{r}
+
+  merged_data = 
+    left_join(pols_df, snp_df, by = "year","month_name")
+
+```
+
+#### Description of the datasets
+
+
