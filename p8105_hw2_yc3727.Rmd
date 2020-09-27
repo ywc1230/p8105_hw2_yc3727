@@ -152,8 +152,7 @@ pols_df$month = as.numeric(pols_df$month)
 month_df = 
     tibble(
         month = 1:12,
-        month_name = month.name
-    )
+        month_name = month.name)
 
 pols_df =
     left_join(pols_df, month_df, by = "month") %>%
@@ -169,6 +168,48 @@ pols_df
 ```
 
 
+#### Cleaning the data in snp.csv using a similar process to the above; Arranging according to year and month; organizing so that year and month are the leading columns.
 
+```{r}
 
+snp_df = read_csv(
+    "./data/snp.csv") %>%
+    janitor::clean_names() %>%
+    separate(date, sep = "/", into = c("month", "day", "year"))
+
+snp_df$month = as.numeric(snp_df$month)
+
+month_df = 
+    tibble(
+        month = 1:12,
+        month_name = month.name)
+
+snp_df =
+    left_join(snp_df, month_df, by = "month") 
+
+snp_df = select(snp_df, -day, -month) %>%
+  relocate(month_name, .after = "year") 
+
+snp_df
+```
+
+#### Tidying the unemployment data so that it can be merged with the previous datasets.
+
+```{r}
+
+  unemp_df = read_csv(
+    "./data/unemployment.csv") %>%
+    janitor::clean_names()
+
+  unemp_tidy_df = 
+    pivot_longer(
+      unemp_df, 
+      jan:dec, 
+      names_to = "month",
+      values_to = "unemployment"
+    )
+
+  unemp_tidy_df
+  
+```
 
