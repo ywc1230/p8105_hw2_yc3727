@@ -230,4 +230,9 @@ snp_df
 
 #### Description of the datasets
 
+* The pols-month dataset contains information related to the number of national politicians who are democratic or republican at any given time. 
+* The snp dataset contains information related to Standard & Poor’s stock market index (S&P) on a given date, often used as a representative measure of stock market as a whole.
+* The unemployment dataset contains information related to the percentage of unemployment in a given month of a certain year. 
+* The final merged dataset contains information from all of the aforementioned datsets above merged together by year and date through a left join function. The final dataset contains `r nrow(merged_df)` rows and `n ncol(merged_df)` columns. The earliest year recorded in this dataset is `r min(merged_df$year)` and the most recent year recorded in this dataset is `r max(merged_df$year)`: covering a range of `r max(merged_df$year)-min(merged_df$year)` years. It contains the following variables: `r ls(merged_df)`.
+
 
