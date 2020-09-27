@@ -83,8 +83,10 @@ This dataset contains information from the Mr. Trashwheel trash collector in Bal
    transit_df = read_csv(
      "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
     janitor::clean_names() %>%
-    select(line:entry, vending, ada)
+    select(line:entry, vending, ada) %>%
+    mutate(entry = ifelse(entry == "YES", "True", "False"))
 ```
+
 
 
 ## Problem 3 
