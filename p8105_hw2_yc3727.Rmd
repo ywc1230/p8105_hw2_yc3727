@@ -139,7 +139,7 @@ There are a total of 183 station entrances/exits without vending. Of those, 69 e
 
 ## Problem 3 
 
-#### Reading in & cleaning data; breaking up mon variable; replacing month number with month name. 
+#### Reading in & cleaning data; breaking up mon variable; replacing month number with month name; deleting day variable; 
 
 ```{r}
 pols_df = read_csv(
@@ -157,7 +157,13 @@ month_df =
 
 pols_df =
     left_join(pols_df, month_df, by = "month") %>%
-    relocate(month_name, .after = "month")
+    relocate(month_name, .after = "month") 
+
+pols_df = subset(pols_df, select = -day)
 
 ```
+
+
+
+
 
