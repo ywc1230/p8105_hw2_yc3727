@@ -152,7 +152,7 @@ pols_df$month = as.numeric(pols_df$month)
 month_df = 
     tibble(
         month = 1:12,
-        month_name = month.name)
+        month_name = month.abb)
 
 pols_df =
     left_join(pols_df, month_df, by = "month") %>%
@@ -182,7 +182,7 @@ snp_df$month = as.numeric(snp_df$month)
 month_df = 
     tibble(
         month = 1:12,
-        month_name = month.name)
+        month_name = month.abb)
 
 snp_df =
     left_join(snp_df, month_df, by = "month") 
@@ -217,9 +217,15 @@ snp_df
 
 ```{r}
 
-  merged_data = 
+  merged_df = 
     left_join(pols_df, snp_df, by = "year","month_name")
+  
+  merged_df$year = as.numeric(merged_df$year)
 
+  merged_df = 
+    left_join(merged_df, unemp_tidy_df, by = "year","month")
+
+  merged_df
 ```
 
 #### Description of the datasets
