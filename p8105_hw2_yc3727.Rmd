@@ -82,63 +82,47 @@ precip_2017 =
 
 ## Problem 2 
 
-#### Read in csv file, clean variable names, convert entry variable 
+#### Read in csv file, clean variable names, convert entry variable, reformat route columns 
 
 ```{r}
    transit_df = read_csv(
      "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
     janitor::clean_names() %>%
     select(line:entry, vending, ada) %>%
-    mutate(entry = ifelse(entry == "YES", "True", "False"))
+    #mutate(entry = ifelse(entry == "YES", "True", "False"))
+    mutate(entry = recode(entry, "YES" = TRUE, "NO" = FALSE)) %>%
+    mutate(
+      route8 = as.character(route8), 
+      route9 = as.character(route9), 
+      route10 = as.character(route10), 
+      route11 = as.character(route11)) %>%
+    pivot_longer(
+      route1:route11, 
+      names_to = "route_number", 
+      values_to = "route_name", 
+      names_prefix = "route"
+    )
 ```
 
 #### Description of the NYC Transit dataset 
 
-The dataset contains information related to each entrance and exit for each subway station in New York City. It contains the following variables: `r ls(transit_df)`. The dataset has `r nrow(transit_df)` rows and `r ncol(transit_df)` columns. 
+* The dataset contains information related to each entrance and exit for each subway station in New York City. 
+* It contains the following variables: `r ls(transit_df)`. 
+* The dataset has `r nrow(transit_df)` rows and `r ncol(transit_df)` columns. 
+* In terms of the data cleaning steps, I first read the csv file into R, used the clean_names() function to clean the variable names. Then I used the select function to retain only the desired variables. I've also converted the entry variable from a character variable to a logical variable.
+* This dataset is not yet tidy because there are redundant columns that seem to describe the same thing (e.g. route information is spread across 11 columns). 
 
-In terms of the data cleaning steps, I first read the csv file into R, used the clean_names() function to clean the variable names. Then I used the select function to retain only the desired variables. I've also converted the entry variable from a character variable to a logical variable.
-
-This dataset is not yet tidy because there are redundant columns that seem to describe the same thing. 
-
-#### Counting the number of distinct stations 
-
-```{r}
-  distinct(transit_df, line, station_name, .keep_all = TRUE) %>%
-  nrow()
-```
-
-There are a total of 465 unique stations. 
-
-#### How many stations are ADA compliant?
+#### Next questions about the NYC transit data
 
 ```{r}
-  distinct(transit_df, line, station_name, .keep_all = TRUE) %>% 
-  filter(ada == TRUE) %>%
-  nrow() 
+  distinct_transit_df = 
+    distinct(transit_df, line, station_name, .keep_all = TRUE) 
 ```
 
-There a total of 84 stations that are ADA compliant. 
-
-#### What proportion of station entrances / exits without vending allow entrance?
-
-```{r}
-  group_by(transit_df, vending) %>%
-  summarise(vending = n())
-  
-  group_by(transit_df, vending, entry) %>%
-  summarise(vending = n())
-  
-  69/183
-```
-
-There are a total of 183 station entrances/exits without vending. Of those, 69 entrances/exits allow entry. So `r 69/183*100`% of the station entrances/exits without vending allow entrance.
-
-#### Reformating data so that route number and route name are distinct variables
-
-```{r}
-
-```
-
+* There are a total of `r nrow(distinct_transit_df)` distinct stations. 
+* There are a total of `r filter(distinct_transit_df, ada == TRUE) %>% nrow()` stations that are ADA compliant.
+* `r filter(transit_df, vending == "NO", entry == "TRUE") %>% nrow()` out of `r filter(transit_df, vending == "NO") %>% nrow()` station entrances/exits without vending allow entrance. 
+* There are `r filter(distinct_transit_df, route_name == "A")` distinct stations that serve train A. 
 
 ## Problem 3 
 
