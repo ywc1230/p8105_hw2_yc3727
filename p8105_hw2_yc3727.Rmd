@@ -96,33 +96,49 @@ precip_2017 =
       route11 = as.character(route11)) %>%
     pivot_longer(
       route1:route11, 
-      names_to = "route_number", 
-      values_to = "route_name", 
-      names_prefix = "route"
+      names_to = "route_name", 
+      values_to = "route_number", 
+      names_prefix = "route",
     )
 ```
 
 #### Description of the NYC Transit dataset 
 
-* The dataset contains information related to each entrance and exit for each subway station in New York City. 
+* The **transit** dataset contains information related to each entrance and exit for each subway station in New York City. I modified the dataset to include information on the line, station, name, station latitude/longitude, routes served, entry, vending, entrance type, and ADA compliance.
 * It contains the following variables: `r ls(transit_df)`. 
-* The dataset has `r nrow(transit_df)` rows and `r ncol(transit_df)` columns.  
-* In terms of the data cleaning steps, I first read the csv file into R, used the clean_names() function to clean the variable names. Then I used the select function to retain only the desired variables. I've also converted the entry variable from a character variable to a logical variable.
-* This dataset was not tidy because there were redundant columns that seem to describe the same thing (e.g. route information is spread across 11 columns) so I reformatted the route columns. 
+* The dimension of the dataset is `r dim(transit_df)` in that the dataset has `r nrow(transit_df)` rows and `r ncol(transit_df)` columns.  
+* In terms of the data cleaning steps, I first read the csv file into R, used the clean_names() function from the janitor package to clean the variable names. Then I used the select function to retain only the desired variables. I've also converted the entry variable from a character variable to a logical variable through a recode function. 
+* This dataset was not tidy because there were redundant columns that seem to describe the same thing (e.g. route information was spread across 11 columns) so I reformatted the route columns through a pivot_longer function to save the route names (1-11) in a route_name variable and the corresponding letters and numbers in a route_number variable. 
 
 #### Next questions about the NYC transit data
 
 ```{r}
+#1: Number of distinct stations
   distinct_transit_df = 
     distinct(transit_df, line, station_name, .keep_all = TRUE) 
+  nrow(distinct_transit_df)
+
+#2: Number of ADA compliant stations
+  nrow(filter(distinct_transit_df, ada == TRUE))
   
+#3: Proportion of station entrances/exits without vending allow entrance
+  no_vending = filter(transit_df, vending == "NO")
+  nov_noe = filter(transit_df, vending == "NO", entry == TRUE)
+  nrow(nov_noe)/nrow(no_vending)
+  
+#4: Number of stations that serve the A train 
+ nrow(filter(distinct_transit_df, route_number == "A"))
+ 
+#5: Number of ADA compliant stations that serve the A train
+ nrow(filter(distinct_transit_df, route_number == "A", ada == TRUE))
+ 
 ```
 
 * There are `r nrow(distinct_transit_df)` distinct stations. 
 * There are `r nrow(filter(distinct_transit_df, ada == TRUE))` stations that are ADA compliant.
 * `r nrow(filter(transit_df, vending == "NO", entry == TRUE))` out of `r nrow(filter(transit_df, vending == "NO"))` station entrances/exits without vending allow entrance. So the proportion of station entrances / exits without vending allow entrance is `r (nrow(filter(transit_df, vending == "NO", entry == TRUE)))/(nrow(filter(transit_df, vending == "NO")))*100` %.
-* There are `r nrow(filter(distinct_transit_df, route_name == "A"))` distinct stations that serve train A.
-* There are `r nrow(filter(distinct_transit_df, route_name == "A", ada ==TRUE))` stations that serve the A train and are also ADA compliant. 
+* There are `r nrow(filter(distinct_transit_df, route_number == "A"))` distinct stations that serve train A.
+* There are `r nrow(filter(distinct_transit_df, route_number == "A", ada ==TRUE))` stations that serve the A train and are also ADA compliant. 
 
 ## Problem 3 
 
@@ -147,7 +163,7 @@ pols_tidy_df =
     mutate(president = ifelse(prez_gop == "1", "gop", "dem")) %>%
     mutate(month_name = toupper(month_name)) %>%
     relocate(year, month_name, president) %>%
-    select(-day, -prez_dem, -prez_gop)
+    select(-day, -prez_dem, -prez_gop, -month)
 
 head(pols_tidy_df)
 
@@ -211,19 +227,17 @@ head(unemp_tidy_df)
     left_join(pols_tidy_df, snp_tidy_df, by = c("year", "month_name"))
 
   merged_all_df = 
-    left_join(merged_snppols_df, unemp_tidy_df, by = c("year", "month_name")) %>%
-    select(-month)
+    left_join(merged_snppols_df, unemp_tidy_df, by = c("year", "month_name")) 
 
   head(merged_all_df)
 ```
 
 #### Description of the datasets
 
-* The pols-month dataset contains information related to the number of national politicians who are democratic or republican at any given time. 
-* The snp dataset contains information related to Standard & Poor’s stock market index (S&P) on a given date, often used as a representative measure of stock market as a whole.
-* The unemployment dataset contains information related to the percentage of unemployment in a given month of a certain year. 
-* The final merged dataset contains information from all of the aforementioned datsets above merged together by year and date through a left join function. The final dataset contains `r nrow(merged_all_df)` rows and `r ncol(merged_all_df)` columns. 
+* The **pols-month** dataset contains information related to the number of national politicians who are democratic or republican at any given time. We modified the dataset to include year, month_name, president, gov_gop (number of republican governors), sen_gop (the number of republican senators), rep_gop (number of republican representatives), gov_dem, sen_dem, and rep_dem.  
+* The **snp** dataset contains information related to Standard & Poor’s stock market index (S&P) on a given date, often used as a representative measure of stock market as a whole. We modified the dataset to include year, month_name, and close. 
+* The **unemployment** dataset contains information related to the percentage of unemployment in a given month of a certain year. We modified the dataset to include year, month_name, and percentage of unemployment.
+* The **final merged dataset** (merged_all_df) contains information from the three aforementioned datsets above merged together by year and month through a left join function. The final dataset contains `r nrow(merged_all_df)` rows and `r ncol(merged_all_df)` columns. The final dataset has the following key variables: `r ls(merged_all_df)`.
 * The earliest year recorded in this dataset is `r min(merged_all_df$year)` and the most recent year recorded in this dataset is `r max(merged_all_df$year)`: covering a range of `r max(merged_all_df$year)-min(merged_all_df$year)` years. 
-* It contains the following variables: `r ls(merged_all_df)`.
 
 
