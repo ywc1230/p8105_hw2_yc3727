@@ -117,12 +117,14 @@ precip_2017 =
 ```{r}
   distinct_transit_df = 
     distinct(transit_df, line, station_name, .keep_all = TRUE) 
+
+
+#There are a total of `r nrow(distinct_transit_df)` distinct stations. 
+#There are a total of `r filter(distinct_transit_df, ada == TRUE) %>% nrow()` stations that are ADA compliant.
+#`r filter(transit_df, vending == "NO", entry == "TRUE") %>% nrow()` out of `r filter(transit_df, vending == "NO") %>% nrow()` station entrances/exits without vending allow entrance. 
+#There are `r filter(distinct_transit_df, route_name == "A")` distinct stations that serve train A.;
 ```
 
-* There are a total of `r nrow(distinct_transit_df)` distinct stations. 
-* There are a total of `r filter(distinct_transit_df, ada == TRUE) %>% nrow()` stations that are ADA compliant.
-* `r filter(transit_df, vending == "NO", entry == "TRUE") %>% nrow()` out of `r filter(transit_df, vending == "NO") %>% nrow()` station entrances/exits without vending allow entrance. 
-* There are `r filter(distinct_transit_df, route_name == "A")` distinct stations that serve train A. 
 
 ## Problem 3 
 
@@ -132,9 +134,10 @@ precip_2017 =
 pols_df = read_csv(
     "./data/pols-month.csv") %>%
     janitor::clean_names() %>%
-    separate(mon, sep = "-", into = c("year", "month", "day"))
-
-pols_df$month = as.numeric(pols_df$month)
+    separate(mon, sep = "-", into = c("year", "month", "day")) %>%
+    mutate(year = as.integer(year)) %>%
+    mutate(month = as.integer(month)) %>%
+    mutate(day = as.integer(day))
 
 month_df = 
     tibble(
@@ -148,7 +151,7 @@ pols_df =
       president = ifelse(prez_gop == "1", "gop", "dem")) %>%
     relocate(president, .after = "month_name")
 
-pols_df = select(pols_df, -day, -prez_dem, -prez_gop)
+pols_df = select(pols_df, -day, -prez_dem, -prez_gop, -month)
 
 pols_df
 
@@ -162,9 +165,10 @@ pols_df
 snp_df = read_csv(
     "./data/snp.csv") %>%
     janitor::clean_names() %>%
-    separate(date, sep = "/", into = c("month", "day", "year"))
-
-snp_df$month = as.numeric(snp_df$month)
+    separate(date, sep = "/", into = c("month", "day", "year")) %>%
+    mutate(year = as.integer(year)) %>%
+    mutate(month = as.integer(month)) %>%
+    mutate(day = as.integer(day)) 
 
 month_df = 
     tibble(
@@ -172,10 +176,9 @@ month_df =
         month_name = month.abb)
 
 snp_df =
-    left_join(snp_df, month_df, by = "month") 
-
-snp_df = select(snp_df, -day, -month) %>%
-  relocate(month_name, .after = "year") 
+    left_join(snp_df, month_df, by = "month") %>%
+    subset(select = -c(day,month)) %>%
+    relocate(year, month_name)
 
 snp_df
 ```
@@ -194,7 +197,8 @@ snp_df
       jan:dec, 
       names_to = "month",
       values_to = "unemployment"
-    )
+    ) %>%
+    mutate(year = as.integer(year))
 
   unemp_tidy_df
   
@@ -203,16 +207,13 @@ snp_df
 #### Join the datasets by merging snp into pols, then merging unemployment into the result.
 
 ```{r}
+  merged_snppols_df = 
+    left_join(pols_df, snp_df, by = "year","month")
 
-  merged_df = 
-    left_join(pols_df, snp_df, by = "year","month_name")
-  
-  merged_df$year = as.numeric(merged_df$year)
+  merged_all_df = 
+    left_join(merged_snppols_df, unemp_tidy_df, by = "year","month")
 
-  merged_df = 
-    left_join(merged_df, unemp_tidy_df, by = "year","month")
-
-  merged_df
+  merged_all_df
 ```
 
 #### Description of the datasets
@@ -220,6 +221,8 @@ snp_df
 * The pols-month dataset contains information related to the number of national politicians who are democratic or republican at any given time. 
 * The snp dataset contains information related to Standard & Poor’s stock market index (S&P) on a given date, often used as a representative measure of stock market as a whole.
 * The unemployment dataset contains information related to the percentage of unemployment in a given month of a certain year. 
-* The final merged dataset contains information from all of the aforementioned datsets above merged together by year and date through a left join function. The final dataset contains `r nrow(merged_df)` rows and `n ncol(merged_df)` columns. The earliest year recorded in this dataset is `r min(merged_df$year)` and the most recent year recorded in this dataset is `r max(merged_df$year)`: covering a range of `r max(merged_df$year)-min(merged_df$year)` years. It contains the following variables: `r ls(merged_df)`.
+* The final merged dataset contains information from all of the aforementioned datsets above merged together by year and date through a left join function. The final dataset contains `r nrow(merged_all_df)` rows and `r ncol(merged_all_df)` columns. 
+* The earliest year recorded in this dataset is `r min(merged_all_df$year)` and the most recent year recorded in this dataset is `r max(merged_all_df$year)`: covering a range of `r max(merged_all_df$year)-min(merged_all_df$year)` years. 
+* It contains the following variables: `r ls(merged_all_df)`.
 
 
