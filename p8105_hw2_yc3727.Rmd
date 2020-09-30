@@ -1,9 +1,8 @@
 ---
 title: "Homework 2"
-author: Chloe Chah
+author: "Chloe Chah"
+date: "09/30/2020"
 output: github_document
-editor_options: 
-  chunk_output_type: console
 ---
 
 
@@ -15,7 +14,7 @@ library(readxl)
 
 ## Problem 1 
 
-#### Read the Mr.Trashwheel dataset. 
+#### Read and clean the Mr.Trashwheel dataset. 
 
 ```{r}
 
@@ -32,7 +31,7 @@ trashwheel_df =
   )
 ```
 
-#### Read precipitation data! 
+#### Read and clean precipitation data! 
 
 ```{r}
   precip_2018 = 
@@ -59,7 +58,7 @@ precip_2017 =
 
 ```
 
-#### Now combine annual precipitation.
+#### Now combine annual precipitation dataset.
 
 ```{r}
   month_df = 
@@ -76,8 +75,9 @@ precip_2017 =
 ```
 
 * This dataset contains information from the Mr. Trashwheel trash collector in Baltimore, Maryland. As trash enters the inner harbor, the trashwheel collects that trash and stores it in a dumpster. 
-* The dataset contains information on year, month, and trash collected, including some specific kinds of trash. There are a total of `r nrow(trashwheel_df)` rows in our final dataset. Additional data sheets include monthly precipitation data. 
-* The total precipitation in 2018 is `r select(precip_2018, total) %>% sum()`. 
+* The Trashwheel dataset contains important variables on year, month, and weight and volume of trash collected, including some specific kinds of trash. The Trashwheel dataset has `r nrow(trashwheel_df)` rows or observations and contains the following variables: `r ls(trashwheel_df)`.  Additional data sheets include monthly precipitation data. 
+* There are a total of `r nrow(precip_df)` rows in our final combined precipitation dataset from 2017 and 2018. The final combined precipitation dataset includes variables on the year and month of the measurement of precipitation and the total amount of precipitation during that specific time period in inches. 
+* The total precipitation in 2018 is `r select(precip_2018, total) %>% sum()` inches. 
 * The median number of sports balls in 2017 is `r median(filter(trashwheel_df, year == 2017)$sports_balls)`.
 
 ## Problem 2 
@@ -89,7 +89,6 @@ precip_2017 =
      "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
     janitor::clean_names() %>%
     select(line:entry, vending, ada) %>%
-    #mutate(entry = ifelse(entry == "YES", "True", "False"))
     mutate(entry = recode(entry, "YES" = TRUE, "NO" = FALSE)) %>%
     mutate(
       route8 = as.character(route8), 
@@ -108,7 +107,7 @@ precip_2017 =
 
 * The dataset contains information related to each entrance and exit for each subway station in New York City. 
 * It contains the following variables: `r ls(transit_df)`. 
-* The dataset has `r nrow(transit_df)` rows and `r ncol(transit_df)` columns. 
+* The dataset has `r nrow(transit_df)` rows and `r ncol(transit_df)` columns.  
 * In terms of the data cleaning steps, I first read the csv file into R, used the clean_names() function to clean the variable names. Then I used the select function to retain only the desired variables. I've also converted the entry variable from a character variable to a logical variable.
 * This dataset was not tidy because there were redundant columns that seem to describe the same thing (e.g. route information is spread across 11 columns) so I reformatted the route columns. 
 
@@ -122,7 +121,7 @@ precip_2017 =
 
 * There are `r nrow(distinct_transit_df)` distinct stations. 
 * There are `r nrow(filter(distinct_transit_df, ada == TRUE))` stations that are ADA compliant.
-* `r nrow(filter(transit_df, vending == "NO", entry == TRUE))` out of `r nrow(filter(transit_df, vending == "NO"))` station entrances/exits without vending allow entrance. 
+* `r nrow(filter(transit_df, vending == "NO", entry == TRUE))` out of `r nrow(filter(transit_df, vending == "NO"))` station entrances/exits without vending allow entrance. So the proportion of station entrances / exits without vending allow entrance is `r (nrow(filter(transit_df, vending == "NO", entry == TRUE)))/(nrow(filter(transit_df, vending == "NO")))*100` %.
 * There are `r nrow(filter(distinct_transit_df, route_name == "A"))` distinct stations that serve train A.
 * There are `r nrow(filter(distinct_transit_df, route_name == "A", ada ==TRUE))` stations that serve the A train and are also ADA compliant. 
 
