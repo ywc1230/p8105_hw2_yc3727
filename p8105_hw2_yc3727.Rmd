@@ -1,7 +1,6 @@
 ---
 title: "Homework 2"
 author: "Chloe Chah"
-date: "09/30/2020"
 output: github_document
 ---
 
