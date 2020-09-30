@@ -142,16 +142,14 @@ month_df =
         month = 1:12,
         month_name = month.abb)
 
-pols_df =
+pols_tidy_df =
     left_join(pols_df, month_df, by = "month") %>%
-    relocate(month_name, .after = "month") %>%
-    mutate(
-      president = ifelse(prez_gop == "1", "gop", "dem")) %>%
-    relocate(president, .after = "month_name")
+    mutate(president = ifelse(prez_gop == "1", "gop", "dem")) %>%
+    mutate(month_name = toupper(month_name)) %>%
+    relocate(year, month_name, president) %>%
+    select(-day, -prez_dem, -prez_gop)
 
-pols_df = select(pols_df, -day, -prez_dem, -prez_gop, -month)
-
-pols_df
+head(pols_tidy_df)
 
 ```
 
@@ -173,12 +171,14 @@ month_df =
         month = 1:12,
         month_name = month.abb)
 
-snp_df =
+snp_tidy_df =
     left_join(snp_df, month_df, by = "month") %>%
-    subset(select = -c(day,month)) %>%
-    relocate(year, month_name)
+    mutate(month = month_name) %>%
+    mutate(month_name = toupper(month_name)) %>%
+    relocate(year, month_name) %>%
+    select(-day, -month)
 
-snp_df
+head(snp_tidy_df)
 ```
 
 #### Tidying the unemployment data so that it can be merged with the previous datasets.
@@ -193,12 +193,14 @@ snp_df
     pivot_longer(
       unemp_df, 
       jan:dec, 
-      names_to = "month",
+      names_to = "month_name",
       values_to = "unemployment"
     ) %>%
-    mutate(year = as.integer(year))
+    mutate(year = as.integer(year)) %>% 
+    mutate(month_name = toupper(month_name)) %>%
+    relocate(year, month_name) 
 
-  unemp_tidy_df
+head(unemp_tidy_df)
   
 ```
 
@@ -206,12 +208,13 @@ snp_df
 
 ```{r}
   merged_snppols_df = 
-    left_join(pols_df, snp_df, by = "year","month")
+    left_join(pols_tidy_df, snp_tidy_df, by = c("year", "month_name"))
 
   merged_all_df = 
-    left_join(merged_snppols_df, unemp_tidy_df, by = "year","month")
+    left_join(merged_snppols_df, unemp_tidy_df, by = c("year", "month_name")) %>%
+    select(-month)
 
-  merged_all_df
+  head(merged_all_df)
 ```
 
 #### Description of the datasets
